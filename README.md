@@ -1,4 +1,5 @@
 # Thermostats Update
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
 This app updates Z-Wave thermostats entities (e.g. Danfoss 014G0013) state and current temperature from external sensors in the [Home Assistant](https://home-assistant.io/).
 
