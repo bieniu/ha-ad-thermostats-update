@@ -42,7 +42,7 @@ key | optional | type | default | description
 `idle_state` | True | string | `off` | name of idle state, changing this from default value will broke compatibility with HomeKit
 `idle_heat_temp` | True | float | `8` | temperature value between `idle` and `heat` states
 `state_only` | True | boolean | `false` | with `state_only` set to `true` script will update only state of the thermostat
-`temp_only` | True | boolean | `false` | with temp_only set to 'true' app will update only current_temperature of the thermostat
+`temp_only` | True | boolean | `false` | with `temp_only` set to `true` app will update only `current_temperature` of the thermostat
 `wait_to_zwave` | True | boolean | `true` | defines whether the script has to wait for the initialization of the Z-wave component after Home Assistant restart
 
 [releases]: https://github.com/bieniu/ha-ad-thermostats-update/releases
