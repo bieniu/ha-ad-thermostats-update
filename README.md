@@ -45,8 +45,8 @@ key | optional | type | default | description
 `temp_only` | True | boolean | `false` | with temp_only set to 'true' app will update only current_temperature of the thermostat
 `wait_to_zwave` | True | boolean | `true` | defines whether the script has to wait for the initialization of the Z-wave component after Home Assistant restart
 
-[releases]: https://github.com/bieniu/ha-airly/releases
-[releases-shield]: https://img.shields.io/github/release/bieniu/ha-airly.svg?style=popout
-[forum]: https://community.home-assistant.io/t/airly-integration-air-quality-data/124996
+[releases]: https://github.com/bieniu/ha-ad-thermostats-update/releases
+[releases-shield]: https://img.shields.io/github/release/bieniu/ha-ad-thermostats-update.svg?style=popout
+[forum]: https://community.home-assistant.io/t/update-current-temperature-for-z-wave-thermostats/32834
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
 
