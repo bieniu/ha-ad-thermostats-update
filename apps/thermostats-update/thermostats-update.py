@@ -47,11 +47,9 @@ import appdaemon.plugins.hass.hassapi as hass
 class ThermostatsUpdate(hass.Hass):
 
     def initialize(self):
-
-        __version__ = '0.3.1'
-
-        ATTR_HEAT_DEFAULT = 'heat'
-        ATTR_OFF_DEFAULT = 'off'
+        HVAC_HEAT = 'heat'
+        HVAC_OFF = 'off'
+        ATTR_HVAC_MODES = "hvac_modes"
         ATTR_DEBUG = 'debug'
         ATTR_LOG_DEBUG = 'DEBUG'
         ATTR_LOG_INFO = 'INFO'
@@ -84,11 +82,11 @@ class ThermostatsUpdate(hass.Hass):
         if ATTR_HEAT_STATE in self.args:
             self.heat_state = self.args[ATTR_HEAT_STATE]
         else:
-            self.heat_state = ATTR_HEAT_DEFAULT
+            self.heat_state = HVAC_HEAT
         if ATTR_IDLE_STATE in self.args:
             self.idle_state = self.args[ATTR_IDLE_STATE]
         else:
-            self.idle_state = ATTR_OFF_DEFAULT
+            self.idle_state = HVAC_OFF
         try:
             if ATTR_IDLE_HEAT_TEMP in self.args:
                 self.idle_heat_temp = int(self.args[ATTR_IDLE_HEAT_TEMP])
@@ -182,20 +180,14 @@ class ThermostatsUpdate(hass.Hass):
     def update_thermostat(self, entity, state, target_temp, current_temp):
         self.log("Updating state and current "
                  "temperature for {}...".format(entity), self.log_level)
-        if current_temp:
-            if not self.temp_only:
-                self.set_state(
-                    entity,
-                    state=self.find_thermostat_state(float(target_temp)),
-                    attributes={"current_temperature": current_temp})
-            else:
-                self.set_state(
-                    entity, state=state,
-                    attributes={"current_temperature": current_temp})
-        else:
-            self.set_state(
-                entity,
-                state=self.find_thermostat_state(float(target_temp)))
+        attrs = {}
+        if not self.state_only:
+            attrs[self.ATTR_CURRENT_TEMP] = current_temp
+        if not self.temp_only:
+            state = self.find_thermostat_state(float(target_temp))
+            attrs[self.ATTR_HVAC_MODE] = state
+            attrs[self.ATTR_HVAC_MODES] = [self.heat_state, self.idle_state]
+        self.set_state(entity, state=state, attributes=attrs)
 
     def find_thermostat_state(self, target_temp):
         if target_temp > self.idle_heat_temp:
