@@ -40,33 +40,33 @@ thermostats_update:
   wait_for_zwave: true
 
 """
-
 import appdaemon.plugins.hass.hassapi as hass
+
+ATTR_CURRENT_TEMP = "current_temperature"
+ATTR_HVAC_MODE = "hvac_mode"
+ATTR_HVAC_MODES = "hvac_modes"
+ATTR_DEBUG = "debug"
+ATTR_LOG_DEBUG = "DEBUG"
+ATTR_LOG_INFO = "INFO"
+ATTR_IDLE_HEAT_TEMP_DEFAULT = 8
+ATTR_WAIT_FOR_ZWAVE = "wait_for_zwave"
+ATTR_HEAT_STATE = "heat_state"
+ATTR_IDLE_STATE = "idle_state"
+ATTR_IDLE_HEAT_TEMP = "idle_heat_temp"
+ATTR_STATE_ONLY = "state_only"
+ATTR_TEMP_ONLY = "temp_only"
+HVAC_HEAT = "heat"
+HVAC_OFF = "off"
 
 
 class ThermostatsUpdate(hass.Hass):
-
     def initialize(self):
-        HVAC_HEAT = 'heat'
-        HVAC_OFF = 'off'
-        ATTR_HVAC_MODES = "hvac_modes"
-        ATTR_DEBUG = 'debug'
-        ATTR_LOG_DEBUG = 'DEBUG'
-        ATTR_LOG_INFO = 'INFO'
-        ATTR_IDLE_HEAT_TEMP_DEFAULT = 8
-        ATTR_WAIT_FOR_ZWAVE = 'wait_for_zwave'
-        ATTR_HEAT_STATE = 'heat_state'
-        ATTR_IDLE_STATE = 'idle_state'
-        ATTR_IDLE_HEAT_TEMP = 'idle_heat_temp'
-        ATTR_STATE_ONLY = 'state_only'
-        ATTR_TEMP_ONLY = 'temp_only'
-
         self.zwave_handle = None
 
         if ATTR_WAIT_FOR_ZWAVE in self.args:
-            wait_for_zwave = self.args[ATTR_WAIT_FOR_ZWAVE]
+            self.wait_for_zwave = self.args[ATTR_WAIT_FOR_ZWAVE]
         else:
-            wait_for_zwave = True
+            self.wait_for_zwave = True
         if ATTR_STATE_ONLY in self.args:
             self.state_only = self.args[ATTR_STATE_ONLY]
         else:
@@ -76,8 +76,7 @@ class ThermostatsUpdate(hass.Hass):
         else:
             self.temp_only = False
         if self.temp_only and self.state_only:
-            self.error("You can use state_only: true or temp_only: true not "
-                       "both!")
+            self.error("You can use state_only: true or temp_only: true, not both!")
             return
         if ATTR_HEAT_STATE in self.args:
             self.heat_state = self.args[ATTR_HEAT_STATE]
@@ -93,18 +92,20 @@ class ThermostatsUpdate(hass.Hass):
             else:
                 self.idle_heat_temp = ATTR_IDLE_HEAT_TEMP_DEFAULT
         except ValueError:
-            self.error("Wrong arguments! Argument idle_heat_temp has to be "
-                       "an integer.")
+            self.error(
+                "Wrong arguments! Argument idle_heat_temp has to be an integer."
+            )
             return
         self.log_level = ATTR_LOG_DEBUG
         if ATTR_DEBUG in self.args:
             if self.args[ATTR_DEBUG]:
                 self.log_level = ATTR_LOG_INFO
 
-        if wait_for_zwave and not self.zwave_entities_ready():
+        if self.wait_for_zwave and not self.zwave_entities_ready():
             self.log("Waiting for zwave.network_ready event...")
-            self.zwave_handle = self.listen_event(self.start_listen_states,
-                                                  'zwave.network_ready')
+            self.zwave_handle = self.listen_event(
+                self.start_listen_states, "zwave.network_ready"
+            )
         else:
             self.start_listen_states(event=None, data=None, kwargs=None)
 
@@ -113,80 +114,91 @@ class ThermostatsUpdate(hass.Hass):
             self.cancel_listen_event(self.zwave_handle)
         self.log("Checking thermostats and sensors...")
         try:
-            for room in self.args['rooms']:
-                thermostat = self.args['rooms'][room]['thermostat']
+            for room in self.args["rooms"]:
+                thermostat = self.args["rooms"][room]["thermostat"]
                 if not self.entity_exists(thermostat):
-                    self.error("Wrong arguments! Entity "
-                               "{} does not exist.".format(thermostat))
+                    self.error(
+                        "Wrong arguments! Entity "
+                        "{} does not exist.".format(thermostat)
+                    )
                     return
                 if not self.state_only:
-                    sensor = self.args['rooms'][room]['sensor']
+                    sensor = self.args["rooms"][room]["sensor"]
                     if not self.entity_exists(sensor):
-                        self.error("Wrong arguments! Entity "
-                                   "{} does not exist.".format(sensor))
+                        self.error(
+                            "Wrong arguments! Entity "
+                            "{} does not exist.".format(sensor)
+                        )
                         return
-                self.listen_state(self.thermostat_state_changed, thermostat,
-                                    attribute='current_temperature', new=None)
+                self.listen_state(
+                    self.thermostat_state_changed,
+                    thermostat,
+                    attribute=ATTR_CURRENT_TEMP,
+                    new=None,
+                )
                 if not self.state_only:
                     self.listen_state(self.sensor_state_changed, sensor)
-                if self.get_state(thermostat,
-                                    attribute='current_temperature') is None:
+                if self.get_state(thermostat, attribute=ATTR_CURRENT_TEMP) is None:
                     self.thermostat_state_changed(
                         thermostat,
-                        attribute='current_temperature',
-                        old=None, new=None, kwargs=None)
+                        attribute=ATTR_CURRENT_TEMP,
+                        old=None,
+                        new=None,
+                        kwargs=None,
+                    )
             self.log("Ready for action...")
         except KeyError:
-            self.error("Wrong arguments! You must supply a valid sensors/"
-                       "thermostats entities for each room.")
+            self.error(
+                "Wrong arguments! You must supply a valid sensors"
+                "thermostats entities for each room."
+            )
 
     def thermostat_state_changed(self, entity, attribute, old, new, kwargs):
         if not self.state_only:
-            for room in self.args['rooms']:
-                if entity == self.args['rooms'][room]['thermostat']:
-                    sensor_id = self.args['rooms'][room]['sensor']
+            for room in self.args["rooms"]:
+                if entity == self.args["rooms"][room]["thermostat"]:
+                    sensor_id = self.args["rooms"][room]["sensor"]
 
-        target_temp = self.get_state(entity, attribute='temperature')
+        target_temp = self.get_state(entity, attribute="temperature")
         org_state = self.get_state(entity)
         if not self.state_only:
             sensor_temp = self.get_state(sensor_id)
-            if sensor_temp and sensor_temp != 'unknown':
-                if not new or (new != 'unknown'
-                            and float(new) != float(sensor_temp)):
-                    self.update_thermostat(entity, org_state, target_temp,
-                                           sensor_temp)
+            if sensor_temp and sensor_temp != "unknown":
+                if not new or (new != "unknown" and float(new) != float(sensor_temp)):
+                    self.update_thermostat(entity, org_state, target_temp, sensor_temp)
             else:
                 self.log("No temperature data on the sensor {}.".format(sensor_id))
         else:
             self.update_thermostat(entity, org_state, target_temp, None)
 
     def sensor_state_changed(self, entity, attribute, old, new, kwargs):
-        for room in self.args['rooms']:
-            if entity == self.args['rooms'][room]['sensor']:
-                thermostat_id = self.args['rooms'][room]['thermostat']
+        for room in self.args["rooms"]:
+            if entity == self.args["rooms"][room]["sensor"]:
+                thermostat_id = self.args["rooms"][room]["thermostat"]
 
-        current_temp = self.get_state(thermostat_id,
-                                      attribute='current_temperature')
-        target_temp = self.get_state(thermostat_id, attribute='temperature')
+        current_temp = self.get_state(thermostat_id, attribute=ATTR_CURRENT_TEMP)
+        target_temp = self.get_state(thermostat_id, attribute="temperature")
         org_state = self.get_state(thermostat_id)
-        if new and new != 'unknown':
-            if not current_temp or (current_temp != 'unknown'
-                                    and float(current_temp) != float(new)):
-                self.update_thermostat(thermostat_id, org_state, target_temp,
-                                       new)
+        if new and new != "unknown":
+            if not current_temp or (
+                current_temp != "unknown" and float(current_temp) != float(new)
+            ):
+                self.update_thermostat(thermostat_id, org_state, target_temp, new)
         else:
             self.log("No temperature data on the sensor {}.".format(entity))
 
     def update_thermostat(self, entity, state, target_temp, current_temp):
-        self.log("Updating state and current "
-                 "temperature for {}...".format(entity), self.log_level)
+        self.log(
+            "Updating state and current " "temperature for {}...".format(entity),
+            self.log_level,
+        )
         attrs = {}
         if not self.state_only:
-            attrs[self.ATTR_CURRENT_TEMP] = current_temp
+            attrs[ATTR_CURRENT_TEMP] = current_temp
         if not self.temp_only:
             state = self.find_thermostat_state(float(target_temp))
-            attrs[self.ATTR_HVAC_MODE] = state
-            attrs[self.ATTR_HVAC_MODES] = [self.heat_state, self.idle_state]
+            attrs[ATTR_HVAC_MODE] = state
+            attrs[ATTR_HVAC_MODES] = [self.heat_state, self.idle_state]
         self.set_state(entity, state=state, attributes=attrs)
 
     def find_thermostat_state(self, target_temp):
@@ -197,10 +209,10 @@ class ThermostatsUpdate(hass.Hass):
 
     def zwave_entities_ready(self):
         resault = True
-        entities = self.get_state('zwave',)
+        entities = self.get_state("zwave")
         try:
             for entity in entities:
-                if not entities[entity]['attributes']['is_ready']:
+                if not entities[entity]["attributes"]["is_ready"]:
                     resault = False
         except KeyError:
             resault = False
