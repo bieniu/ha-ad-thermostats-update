@@ -43,18 +43,23 @@ thermostats_update:
 import appdaemon.plugins.hass.hassapi as hass
 
 ATTR_CURRENT_TEMP = "current_temperature"
+ATTR_DEBUG = "debug"
 ATTR_HVAC_MODE = "hvac_mode"
 ATTR_HVAC_MODES = "hvac_modes"
-ATTR_DEBUG = "debug"
+ATTR_IDLE_HEAT_TEMP_DEFAULT = 8
 ATTR_LOG_DEBUG = "DEBUG"
 ATTR_LOG_INFO = "INFO"
-ATTR_IDLE_HEAT_TEMP_DEFAULT = 8
+ATTR_TEMPERATURE = "temperature"
+ATTR_THERMOSTAT = "thermostat"
 ATTR_WAIT_FOR_ZWAVE = "wait_for_zwave"
 ATTR_HEAT_STATE = "heat_state"
 ATTR_IDLE_STATE = "idle_state"
 ATTR_IDLE_HEAT_TEMP = "idle_heat_temp"
+ATTR_ROOMS = "rooms"
+ATTR_SENSOR = "sensor"
 ATTR_STATE_ONLY = "state_only"
 ATTR_TEMP_ONLY = "temp_only"
+ATTR_UNKNOWN = "unknown"
 HVAC_HEAT = "heat"
 HVAC_OFF = "off"
 
@@ -92,9 +97,7 @@ class ThermostatsUpdate(hass.Hass):
             else:
                 self.idle_heat_temp = ATTR_IDLE_HEAT_TEMP_DEFAULT
         except ValueError:
-            self.error(
-                "Wrong arguments! Argument idle_heat_temp has to be an integer."
-            )
+            self.error("Wrong arguments! Argument idle_heat_temp has to be an integer.")
             return
         self.log_level = ATTR_LOG_DEBUG
         if ATTR_DEBUG in self.args:
@@ -114,20 +117,18 @@ class ThermostatsUpdate(hass.Hass):
             self.cancel_listen_event(self.zwave_handle)
         self.log("Checking thermostats and sensors...")
         try:
-            for room in self.args["rooms"]:
-                thermostat = self.args["rooms"][room]["thermostat"]
+            for room in self.args[ATTR_ROOMS]:
+                thermostat = self.args[ATTR_ROOMS][room][ATTR_THERMOSTAT]
                 if not self.entity_exists(thermostat):
                     self.error(
-                        "Wrong arguments! Entity "
-                        "{} does not exist.".format(thermostat)
+                        "Wrong arguments! Entity {} does not exist.".format(thermostat)
                     )
                     return
                 if not self.state_only:
-                    sensor = self.args["rooms"][room]["sensor"]
+                    sensor = self.args[ATTR_ROOMS][room][ATTR_SENSOR]
                     if not self.entity_exists(sensor):
                         self.error(
-                            "Wrong arguments! Entity "
-                            "{} does not exist.".format(sensor)
+                            "Wrong arguments! Entity {} does not exist.".format(sensor)
                         )
                         return
                 self.listen_state(
@@ -155,16 +156,18 @@ class ThermostatsUpdate(hass.Hass):
 
     def thermostat_state_changed(self, entity, attribute, old, new, kwargs):
         if not self.state_only:
-            for room in self.args["rooms"]:
-                if entity == self.args["rooms"][room]["thermostat"]:
-                    sensor_id = self.args["rooms"][room]["sensor"]
+            for room in self.args[ATTR_ROOMS]:
+                if entity == self.args[ATTR_ROOMS][room][ATTR_THERMOSTAT]:
+                    sensor_id = self.args[ATTR_ROOMS][room][ATTR_SENSOR]
 
-        target_temp = self.get_state(entity, attribute="temperature")
+        target_temp = self.get_state(entity, attribute=ATTR_TEMPERATURE)
         org_state = self.get_state(entity)
         if not self.state_only:
             sensor_temp = self.get_state(sensor_id)
-            if sensor_temp and sensor_temp != "unknown":
-                if not new or (new != "unknown" and float(new) != float(sensor_temp)):
+            if sensor_temp and sensor_temp != ATTR_UNKNOWN:
+                if not new or (
+                    new != ATTR_UNKNOWN and float(new) != float(sensor_temp)
+                ):
                     self.update_thermostat(entity, org_state, target_temp, sensor_temp)
             else:
                 self.log("No temperature data on the sensor {}.".format(sensor_id))
@@ -172,16 +175,16 @@ class ThermostatsUpdate(hass.Hass):
             self.update_thermostat(entity, org_state, target_temp, None)
 
     def sensor_state_changed(self, entity, attribute, old, new, kwargs):
-        for room in self.args["rooms"]:
-            if entity == self.args["rooms"][room]["sensor"]:
-                thermostat_id = self.args["rooms"][room]["thermostat"]
+        for room in self.args[ATTR_ROOMS]:
+            if entity == self.args[ATTR_ROOMS][room][ATTR_SENSOR]:
+                thermostat_id = self.args[ATTR_ROOMS][room][ATTR_THERMOSTAT]
 
         current_temp = self.get_state(thermostat_id, attribute=ATTR_CURRENT_TEMP)
-        target_temp = self.get_state(thermostat_id, attribute="temperature")
+        target_temp = self.get_state(thermostat_id, attribute=ATTR_TEMPERATURE)
         org_state = self.get_state(thermostat_id)
-        if new and new != "unknown":
+        if new and new != ATTR_UNKNOWN:
             if not current_temp or (
-                current_temp != "unknown" and float(current_temp) != float(new)
+                current_temp != ATTR_UNKNOWN and float(current_temp) != float(new)
             ):
                 self.update_thermostat(thermostat_id, org_state, target_temp, new)
         else:
@@ -189,7 +192,7 @@ class ThermostatsUpdate(hass.Hass):
 
     def update_thermostat(self, entity, state, target_temp, current_temp):
         self.log(
-            "Updating state and current " "temperature for {}...".format(entity),
+            "Updating state and current temperature for {}...".format(entity),
             self.log_level,
         )
         attrs = {}
