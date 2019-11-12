@@ -50,5 +50,5 @@ key | optional | type | default | description
 [releases-shield]: https://img.shields.io/github/release/bieniu/ha-ad-thermostats-update.svg?style=popout
 [forum]: https://community.home-assistant.io/t/update-current-temperature-for-z-wave-thermostats/32834
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
-[buy-me-a-coffee]: https://img.shields.io/static/v1.svg?label=%20&message=Buy%20me%20a%20coffee&color=black&logo=buy%20me%20a%20coffee&logoColor=white&labelColor=6f4e37
+[buy-me-a-coffee]: https://img.shields.io/static/v1.svg?label=%20&message=Buy%20me%20a%20coffee&color=yellow&logo=buy%20me%20a%20coffee&logoColor=white&labelColor=6f4e37
 
