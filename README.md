@@ -2,6 +2,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 [![Community Forum][forum-shield]][forum]
+[![Buy me a coffee][buy-me-a-coffee]](https://www.buymeacoffee.com/QnLdxeaqO)
 
 This app updates Z-Wave thermostats entities (e.g. Danfoss 014G0013) state and current temperature from external sensors in the [Home Assistant](https://home-assistant.io/).
 
@@ -49,4 +50,5 @@ key | optional | type | default | description
 [releases-shield]: https://img.shields.io/github/release/bieniu/ha-ad-thermostats-update.svg?style=popout
 [forum]: https://community.home-assistant.io/t/update-current-temperature-for-z-wave-thermostats/32834
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
+[buy-me-a-coffee]: https://img.shields.io/static/v1.svg?label=Buy%20me%20a%20coffee&color=black&logo=buy%20me%20a%20coffee&logoColor=white&labelColor=6f4e37
 
