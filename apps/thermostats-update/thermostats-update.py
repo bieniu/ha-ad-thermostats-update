@@ -195,7 +195,7 @@ class ThermostatsUpdate(hass.Hass):
             "Updating state and current temperature for {}...".format(entity),
             self.log_level,
         )
-        attrs = {}
+        attrs = self.get_state(entity, attribute="all")["attributes"]
         if not self.state_only:
             attrs[ATTR_CURRENT_TEMP] = current_temp
         if not self.temp_only:
