@@ -197,7 +197,7 @@ class ThermostatsUpdate(hass.Hass):
         )
         attrs = self.get_state(entity, attribute="all")["attributes"]
         if not self.state_only:
-            attrs[ATTR_CURRENT_TEMP] = current_temp
+            attrs[ATTR_CURRENT_TEMP] = float(current_temp)
         if not self.temp_only:
             state = self.find_thermostat_state(float(target_temp))
             attrs[ATTR_HVAC_MODE] = state
