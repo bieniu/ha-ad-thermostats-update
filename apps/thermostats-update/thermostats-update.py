@@ -1,46 +1,47 @@
-"""
-Update Z-Wave thermostats (e.g. Danfoss 014G0013) state and current temperature
-from sensor.
-Arguments:
- - rooms           - list of rooms (required)
- - thermostat      - thermostat entity_id (required)
- - sensor          - temperature sensors entity_id (required)
- - heat_state      - name of heating state, default 'heat' (optional)
- - idle_state      - name of idle state, default 'off' (optional)
- - idle_heat_temp  - temperature value between 'idle' and 'heat' states,
-                     default 8 (optional)
- - state_only      - with state_only set to 'true' app will update only
-                     state of the thermostat, default false (optional)
- - temp_only       - with temp_only set to 'true' app will update only
-                     current_temperature of the thermostat, default false
-                     (optional)
- - wait_for_zwave  - defines whether the script has to wait for the
-                     initialization of the Z-wave component
-                     after Home Assistant restart, default True (optional)
-
-Configuration example:
-
-thermostats_update:
-  module: thermostats-update
-  class: ThermostatsUpdate
-  rooms:
-    kitchen:
-      thermostat: climate.thermostat_kitchen
-      sensor: sensor.temperature_kitchen
-    room:
-      thermostat: climate.thermostat_room
-      sensor: sensor.temperature_room
-    bathroom:
-      thermostat: climate.thermostat_bathroom
-      sensor: sensor.temperature.bathroom
-  heat_state: 'auto'
-  idle_state: 'idle'
-  idle_heat_temp: 10
-  state_only: true
-  wait_for_zwave: true
-
-"""
 import appdaemon.plugins.hass.hassapi as hass
+
+#
+# Update Z-Wave thermostats (e.g. Danfoss 014G0013) state and current temperature
+# from sensor.
+#
+# Args:
+#  - rooms           - list of rooms (required)
+#  - thermostat      - thermostat entity_id (required)
+#  - sensor          - temperature sensors entity_id (required)
+#  - heat_state      - name of heating state, default 'heat' (optional)
+#  - idle_state      - name of idle state, default 'off' (optional)
+#  - idle_heat_temp  - temperature value between 'idle' and 'heat' states,
+#                      default 8 (optional)
+#  - state_only      - with state_only set to 'true' app will update only
+#                      state of the thermostat, default false (optional)
+#  - temp_only       - with temp_only set to 'true' app will update only
+#                      current_temperature of the thermostat, default false
+#                      (optional)
+#  - wait_for_zwave  - defines whether the script has to wait for the
+#                      initialization of the Z-wave component
+#                      after Home Assistant restart, default True (optional)
+# 
+# Configuration example:
+# 
+# thermostats_update:
+#   module: thermostats-update
+#   class: ThermostatsUpdate
+#   rooms:
+#     kitchen:
+#       thermostat: climate.thermostat_kitchen
+#       sensor: sensor.temperature_kitchen
+#     room:
+#       thermostat: climate.thermostat_room
+#       sensor: sensor.temperature_room
+#     bathroom:
+#       thermostat: climate.thermostat_bathroom
+#       sensor: sensor.temperature.bathroom
+#   heat_state: 'auto'
+#   idle_state: 'idle'
+#   idle_heat_temp: 10
+#   state_only: true
+#   wait_for_zwave: true
+#
 
 ATTR_CURRENT_TEMP = "current_temperature"
 ATTR_DEBUG = "debug"
@@ -62,7 +63,6 @@ ATTR_TEMP_ONLY = "temp_only"
 ATTR_UNKNOWN = "unknown"
 HVAC_HEAT = "heat"
 HVAC_OFF = "off"
-
 
 class ThermostatsUpdate(hass.Hass):
     def initialize(self):
