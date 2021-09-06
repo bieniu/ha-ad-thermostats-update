@@ -15,7 +15,7 @@ Go to [HA community](https://community.home-assistant.io/t/update-current-temper
 ## Configuration example
 ```yaml
 thermostats_update:
-  module: thermostats-update
+  module: thermostats_update
   class: ThermostatsUpdate
   rooms:
     kitchen:
