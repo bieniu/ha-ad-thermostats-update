@@ -121,14 +121,14 @@ class ThermostatsUpdate(hass.Hass):
                 thermostat = self.args[ATTR_ROOMS][room][ATTR_THERMOSTAT]
                 if not self.entity_exists(thermostat):
                     self.error(
-                        "Wrong arguments! Entity {} does not exist.".format(thermostat)
+                        "Wrong arguments! Entity "+format(thermostat)+" does not exist."
                     )
                     return
                 if not self.state_only:
                     sensor = self.args[ATTR_ROOMS][room][ATTR_SENSOR]
                     if not self.entity_exists(sensor):
                         self.error(
-                            "Wrong arguments! Entity {} does not exist.".format(sensor)
+                            "Wrong arguments! Entity "+format(sensor)+" does not exist."
                         )
                         return
                 self.listen_state(
@@ -170,7 +170,7 @@ class ThermostatsUpdate(hass.Hass):
                 ):
                     self.update_thermostat(entity, org_state, target_temp, sensor_temp)
             else:
-                self.log("No temperature data on the sensor {}.".format(sensor_id))
+                self.log("No temperature data on the sensor "+format(sensor_id))
         else:
             self.update_thermostat(entity, org_state, target_temp, None)
 
@@ -188,12 +188,11 @@ class ThermostatsUpdate(hass.Hass):
             ):
                 self.update_thermostat(thermostat_id, org_state, target_temp, new)
         else:
-            self.log("No temperature data on the sensor {}.".format(entity))
+            self.log("No temperature data on the sensor "+format(entity))
 
     def update_thermostat(self, entity, state, target_temp, current_temp):
         self.log(
-            "Updating state and current temperature for {}...".format(entity),
-            self.log_level,
+            "Updating state and current temperature for "+format(entity)+"..."
         )
         attrs = self.get_state(entity, attribute="all")["attributes"]
         if not self.state_only:
